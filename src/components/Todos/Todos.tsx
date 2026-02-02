@@ -8,7 +8,7 @@ interface Props {
   handleTodoRemove: (todoId: number) => Promise<void>;
   handleTodoUpdate: (todo: Todo) => Promise<void>;
   transitionTimeout: number;
-  deletingTodoIds?: number[];
+  processingTodoIds?: number[];
 }
 
 const Todos = ({
@@ -16,7 +16,7 @@ const Todos = ({
 
   handleTodoRemove,
   handleTodoUpdate,
-  deletingTodoIds = [],
+  processingTodoIds = [],
   transitionTimeout,
 }: Props) => {
   return (
@@ -32,7 +32,7 @@ const Todos = ({
               todo={todo}
               onTodoUpdate={handleTodoUpdate}
               onTodoRemove={handleTodoRemove}
-              isToDelete={deletingTodoIds.includes(todo.id)}
+              isPending={processingTodoIds.includes(todo.id)}
             />
           </CSSTransition>
         ))}

@@ -28,11 +28,13 @@ export const App: React.FC = () => {
 
   const [todos, setTodos] = useState<Todo[]>([]);
   const [tempTodo, setTempTodo] = useState<Todo | null>(null);
+
   const [filterStatus, setFilterStatus] = useState<FilterStatus>(
     FilterStatus.All,
   );
+
   const [errorMsg, setErrorMsg] = useState<ErrorMessage>(ErrorMessage.None);
-  const [todosToDeleteIds, setTodosToDeleteIds] = useState<number[]>([]);
+  const [processingTodoIds, setProcessingTodoIds] = useState<number[]>([]);
 
   const errorMsgTimeOutId = useRef<number>(0);
   const createFocusRef = useRef<HTMLInputElement>(null);
@@ -65,13 +67,13 @@ export const App: React.FC = () => {
   }
 
   const handleTodoDelete = useCallback((todoId: number) => {
-    setTodosToDeleteIds(delIds => [...delIds, todoId]);
+    setProcessingTodoIds(ids => [...ids, todoId]);
 
     toggleDisableInput();
 
     return deleteTodo(todoId)
       .then(() => {
-        setErrorMsg(() => ErrorMessage.None);
+        handleErrorMessage(ErrorMessage.None);
         setTodos(prev => prev.filter(todoItem => todoItem.id !== todoId));
       })
       .catch(() => {
@@ -80,7 +82,7 @@ export const App: React.FC = () => {
         return Promise.reject();
       })
       .finally(() => {
-        setTodosToDeleteIds(delIds => delIds.filter(id => id !== todoId));
+        setProcessingTodoIds(ids => ids.filter(id => id !== todoId));
         toggleDisableInput(false);
         createFocusRef.current?.focus();
       });
@@ -116,13 +118,7 @@ export const App: React.FC = () => {
     return addTodo(todoToAdd)
       .then(todoResponse => {
         setErrorMsg(() => ErrorMessage.None);
-        setTodos(currState => [
-          ...currState,
-          {
-            ...todoResponse,
-            id: Date.now(),
-          },
-        ]);
+        setTodos(currState => [...currState, todoResponse]);
       })
       .catch(error => {
         handleErrorMessage(ErrorMessage.AddTodo);
@@ -139,8 +135,10 @@ export const App: React.FC = () => {
   const handleTodoUpdate = useCallback(
     (todo: Todo) => {
       if (!todo.title) {
-        handleTodoDelete(todo.id);
+        return handleTodoDelete(todo.id);
       }
+
+      setProcessingTodoIds(ids => [...ids, todo.id]);
 
       return updateTodo(todo)
         .then(() =>
@@ -154,6 +152,9 @@ export const App: React.FC = () => {
           handleErrorMessage(ErrorMessage.UpdateTodo);
 
           return Promise.reject(error);
+        })
+        .finally(() => {
+          setProcessingTodoIds(ids => ids.filter(id => id !== todo.id));
         });
     },
     [handleTodoDelete],
@@ -205,7 +206,7 @@ export const App: React.FC = () => {
           todos={visibleTodos}
           handleTodoUpdate={handleTodoUpdate}
           handleTodoRemove={handleTodoDelete}
-          deletingTodoIds={todosToDeleteIds}
+          processingTodoIds={processingTodoIds}
           transitionTimeout={transitionTimeout}
         />
 

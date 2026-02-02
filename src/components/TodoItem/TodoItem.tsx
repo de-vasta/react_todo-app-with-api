@@ -7,7 +7,7 @@ interface Props {
   onTodoRemove?: (todoId: number) => Promise<void>;
   onTodoUpdate?: (todo: Todo) => Promise<void>;
   hasTempTodo?: boolean;
-  isToDelete?: boolean;
+  isPending?: boolean;
 }
 
 const TodoItem = ({
@@ -15,7 +15,7 @@ const TodoItem = ({
   onTodoUpdate,
   onTodoRemove,
   hasTempTodo = false,
-  isToDelete = false,
+  isPending = false,
 }: Props) => {
   const { id, title, completed } = todo;
 
@@ -27,8 +27,20 @@ const TodoItem = ({
 
     const normalizeTitle = titleInput.trim();
 
-    setHasEditMode(false);
-    onTodoUpdate?.({ ...todo, title: normalizeTitle });
+    if (normalizeTitle === title) {
+      setHasEditMode(false);
+
+      return;
+    }
+
+    setTitleInput(normalizeTitle);
+    onTodoUpdate?.({ ...todo, title: normalizeTitle })
+      .then(() => {
+        setHasEditMode(false);
+      })
+      .catch(() => {
+        setHasEditMode(true);
+      });
   };
 
   const handleCancelUpdate = (event: React.KeyboardEvent<HTMLFormElement>) => {
@@ -76,7 +88,7 @@ const TodoItem = ({
             data-cy="TodoDelete"
             onClick={() => handleDelete(id)}
           >
-            {isToDelete ? '···' : '×'}
+            {isPending ? '···' : '×'}
           </button>
         </>
       ) : (
@@ -100,7 +112,7 @@ const TodoItem = ({
       <div
         data-cy="TodoLoader"
         className={classNames('modal overlay', {
-          'is-active': hasTempTodo || isToDelete,
+          'is-active': hasTempTodo || isPending,
         })}
       >
         <div className="modal-background has-background-white-ter" />
