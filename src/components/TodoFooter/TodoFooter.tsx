@@ -23,6 +23,7 @@ const TodoFooter = ({
       </span>
 
       <nav className="filter" data-cy="Filter">
+        {/*TODO: refactor this to use enum and map iteration */}
         <a
           href="#/"
           className={cn('filter__link', {
@@ -33,7 +34,6 @@ const TodoFooter = ({
         >
           All
         </a>
-
         <a
           href="#/active"
           className={cn('filter__link', {
@@ -44,7 +44,6 @@ const TodoFooter = ({
         >
           Active
         </a>
-
         <a
           href="#/completed"
           className={cn('filter__link', {

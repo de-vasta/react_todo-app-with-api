@@ -29,7 +29,7 @@ export const App: React.FC = () => {
   const [todosToDeleteIds, setTodosToDeleteIds] = useState<number[]>([]);
 
   const errorMsgTimeOutId = useRef<number>(0);
-  const inputFocusRef = useRef<HTMLInputElement>(null);
+  const createFocusRef = useRef<HTMLInputElement>(null);
 
   const handleErrorMessage = (msgType: ErrorMessage) => {
     setErrorMsg(msgType);
@@ -41,7 +41,7 @@ export const App: React.FC = () => {
   };
 
   useEffect(() => {
-    inputFocusRef.current?.focus();
+    createFocusRef.current?.focus();
   }, []);
 
   useEffect(() => {
@@ -68,8 +68,8 @@ export const App: React.FC = () => {
   );
 
   function toggleDisableInput(shouldDisable: boolean = true) {
-    if (inputFocusRef.current) {
-      inputFocusRef.current.disabled = shouldDisable;
+    if (createFocusRef.current) {
+      createFocusRef.current.disabled = shouldDisable;
     }
   }
 
@@ -91,7 +91,7 @@ export const App: React.FC = () => {
       .finally(() => {
         setTodosToDeleteIds(delIds => delIds.filter(id => id !== todoId));
         toggleDisableInput(false);
-        inputFocusRef.current?.focus();
+        createFocusRef.current?.focus();
       });
   }, []);
 
@@ -106,10 +106,7 @@ export const App: React.FC = () => {
   };
 
   const handleTodoAdd = (title: string) => {
-    // TODO: remove normalization?
-    const titleNormalized = title.trim();
-
-    if (!titleNormalized) {
+    if (!title) {
       handleErrorMessage(ErrorMessage.EmptyTitle);
 
       return Promise.reject(ErrorMessage.EmptyTitle);
@@ -117,7 +114,7 @@ export const App: React.FC = () => {
 
     const todoToAdd: Todo = {
       id: 0,
-      title: titleNormalized,
+      title,
       completed: false,
       userId: USER_ID,
     };
@@ -144,7 +141,7 @@ export const App: React.FC = () => {
       .finally(() => {
         setTempTodo(null);
         toggleDisableInput(false);
-        inputFocusRef.current?.focus();
+        createFocusRef.current?.focus();
       });
   };
 
@@ -183,7 +180,7 @@ export const App: React.FC = () => {
           isAllTodosCompleted={isAllTodosCompleted}
           onToggleAll={handleToggleAll}
           onTodoAdd={handleTodoAdd}
-          inputRef={inputFocusRef}
+          inputRef={createFocusRef}
         />
 
         <Todos

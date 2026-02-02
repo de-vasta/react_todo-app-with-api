@@ -18,14 +18,6 @@ const TodoHeader = ({
   inputRef,
 }: Props) => {
   const [title, setTitle] = useState('');
-  // TODO: maybe we can just use tempTodo and remove the state `isAdding`
-  // const [isAdding, setIsAdding] = useState(false);
-
-  // useEffect(() => {
-  //   if (!isAdding) {
-  //     inputRef.current?.focus();
-  //   }
-  // }, [, isAdding inputRef]);
 
   const handleTitleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     setTitle(event.target.value);
@@ -34,15 +26,13 @@ const TodoHeader = ({
   const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
 
-    // setIsAdding(true);
-    onTodoAdd(title)
+    const normalizeTitle = title.trim();
+
+    onTodoAdd(normalizeTitle)
       .then(() => {
         setTitle('');
       })
       .catch(() => {});
-    // .finally(() => {
-    // setIsAdding(() => false);
-    // });
   };
 
   return (
@@ -67,7 +57,6 @@ const TodoHeader = ({
           ref={inputRef}
           value={title}
           onChange={handleTitleChange}
-          // disabled={isAdding}
         />
       </form>
     </header>

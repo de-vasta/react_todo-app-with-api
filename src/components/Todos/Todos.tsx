@@ -7,8 +7,8 @@ interface Props {
   todos: Todo[];
   handleTodoToggle: (todoId: number) => void;
   handleTodoRemove: (todoId: number) => Promise<void>;
-  deletingTodoIds?: number[];
   transitionTimeout: number;
+  deletingTodoIds?: number[];
 }
 
 const Todos = ({
