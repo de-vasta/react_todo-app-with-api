@@ -6,7 +6,13 @@ import React, {
   useState,
 } from 'react';
 
-import { addTodo, deleteTodo, getTodos, USER_ID } from './api/todos';
+import {
+  addTodo,
+  deleteTodo,
+  getTodos,
+  updateTodo,
+  USER_ID,
+} from './api/todos';
 import { Todo } from './types/Todo';
 import Todos from './components/Todos/Todos';
 import cn from 'classnames';
@@ -51,21 +57,6 @@ export const App: React.FC = () => {
         handleErrorMessage(ErrorMessage.LoadTodos);
       });
   }, []);
-
-  const handleTodoToggle = useCallback(
-    (todoId: number) => {
-      setTodos(
-        todos.map(todo => {
-          if (todo.id === todoId) {
-            return { ...todo, completed: !todo.completed };
-          }
-
-          return todo;
-        }),
-      );
-    },
-    [todos],
-  );
 
   function toggleDisableInput(shouldDisable: boolean = true) {
     if (createFocusRef.current) {
@@ -145,6 +136,29 @@ export const App: React.FC = () => {
       });
   };
 
+  const handleTodoUpdate = useCallback(
+    (todo: Todo) => {
+      if (!todo.title) {
+        handleTodoDelete(todo.id);
+      }
+
+      return updateTodo(todo)
+        .then(() =>
+          setTodos(currState =>
+            currState.map(todoItem =>
+              todoItem.id === todo.id ? todo : todoItem,
+            ),
+          ),
+        )
+        .catch(error => {
+          handleErrorMessage(ErrorMessage.UpdateTodo);
+
+          return Promise.reject(error);
+        });
+    },
+    [handleTodoDelete],
+  );
+
   const handleFilterChange = (filter: FilterStatus) => {
     setFilterStatus(filter);
   };
@@ -163,11 +177,15 @@ export const App: React.FC = () => {
   const isAllTodosUncompleted = undoneTodosCount === todos.length;
 
   const handleToggleAll = () => {
-    if (isAllTodosCompleted) {
-      setTodos(todos.map(todo => ({ ...todo, completed: false })));
-    } else {
-      setTodos(todos.map(todo => ({ ...todo, completed: true })));
-    }
+    const todosToUpdate = todos.filter(
+      todo => todo.completed === isAllTodosCompleted,
+    );
+
+    return Promise.all(
+      todosToUpdate.map(todo => {
+        return handleTodoUpdate({ ...todo, completed: !isAllTodosCompleted });
+      }),
+    );
   };
 
   return (
@@ -185,7 +203,7 @@ export const App: React.FC = () => {
 
         <Todos
           todos={visibleTodos}
-          handleTodoToggle={handleTodoToggle}
+          handleTodoUpdate={handleTodoUpdate}
           handleTodoRemove={handleTodoDelete}
           deletingTodoIds={todosToDeleteIds}
           transitionTimeout={transitionTimeout}

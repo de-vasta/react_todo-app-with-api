@@ -4,26 +4,31 @@ import React, { useState } from 'react';
 
 interface Props {
   todo: Todo;
-  onToggle?: (todoId: number) => void;
   onTodoRemove?: (todoId: number) => Promise<void>;
+  onTodoUpdate?: (todo: Todo) => Promise<void>;
   hasTempTodo?: boolean;
   isToDelete?: boolean;
 }
 
 const TodoItem = ({
-  todo: { id, title, completed },
-  onToggle,
+  todo,
+  onTodoUpdate,
   onTodoRemove,
   hasTempTodo = false,
   isToDelete = false,
 }: Props) => {
+  const { id, title, completed } = todo;
+
   const [titleInput, setTitleInput] = useState(title);
   const [hasEditMode, setHasEditMode] = useState(false);
 
   const onSubmit = (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
+
+    const normalizeTitle = titleInput.trim();
+
     setHasEditMode(false);
-    //TODO: add handleUpdate Todo
+    onTodoUpdate?.({ ...todo, title: normalizeTitle });
   };
 
   const handleCancelUpdate = (event: React.KeyboardEvent<HTMLFormElement>) => {
@@ -50,7 +55,7 @@ const TodoItem = ({
           type="checkbox"
           className="todo__status"
           checked={completed}
-          onChange={() => onToggle?.(id)}
+          onChange={() => onTodoUpdate?.({ ...todo, completed: !completed })}
         />
       </label>
 

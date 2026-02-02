@@ -5,16 +5,17 @@ import { CSSTransition, TransitionGroup } from 'react-transition-group';
 
 interface Props {
   todos: Todo[];
-  handleTodoToggle: (todoId: number) => void;
   handleTodoRemove: (todoId: number) => Promise<void>;
+  handleTodoUpdate: (todo: Todo) => Promise<void>;
   transitionTimeout: number;
   deletingTodoIds?: number[];
 }
 
 const Todos = ({
   todos,
-  handleTodoToggle,
+
   handleTodoRemove,
+  handleTodoUpdate,
   deletingTodoIds = [],
   transitionTimeout,
 }: Props) => {
@@ -29,7 +30,7 @@ const Todos = ({
           >
             <TodoItem
               todo={todo}
-              onToggle={handleTodoToggle}
+              onTodoUpdate={handleTodoUpdate}
               onTodoRemove={handleTodoRemove}
               isToDelete={deletingTodoIds.includes(todo.id)}
             />
