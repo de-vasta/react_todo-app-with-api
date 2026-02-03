@@ -15,13 +15,13 @@ import {
 } from './api/todos';
 import { Todo } from './types/Todo';
 import Todos from './components/Todos/Todos';
-import cn from 'classnames';
 import TodoHeader from './components/TodoHeader/TodoHeader';
 import TodoFooter from './components/TodoFooter/TodoFooter';
 import { ErrorMessage, FilterStatus } from './types/enums';
 import TodoItem from './components/TodoItem/TodoItem';
 import { getVisibleTodos } from './helpers/todoHelpers';
 import { CSSTransition } from 'react-transition-group';
+import ErrorNotify from './components/ErrorNotify/ErrorNotify';
 
 export const App: React.FC = () => {
   const transitionTimeout = 300;
@@ -73,7 +73,6 @@ export const App: React.FC = () => {
 
     return deleteTodo(todoId)
       .then(() => {
-        handleErrorMessage(ErrorMessage.None);
         setTodos(prev => prev.filter(todoItem => todoItem.id !== todoId));
       })
       .catch(() => {
@@ -227,21 +226,10 @@ export const App: React.FC = () => {
         )}
       </div>
 
-      <div
-        data-cy="ErrorNotification"
-        className={cn(
-          'notification is-danger is-light has-text-weight-normal',
-          { hidden: !errorMsg },
-        )}
-      >
-        <button
-          data-cy="HideErrorButton"
-          type="button"
-          className="delete"
-          onClick={() => handleErrorMessage(ErrorMessage.None)}
-        />
-        {errorMsg}
-      </div>
+      <ErrorNotify
+        errorMsg={errorMsg}
+        handleErrorMessage={handleErrorMessage}
+      />
     </div>
   );
 };

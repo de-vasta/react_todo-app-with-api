@@ -9,6 +9,12 @@ interface Props {
   onClearCompleted: () => void;
 }
 
+interface FilterLink {
+  status: FilterStatus;
+  href: string;
+  'data-cy': string;
+}
+
 const TodoFooter = ({
   undoneTodosCount,
   filterStatus,
@@ -16,6 +22,20 @@ const TodoFooter = ({
   onFilterChange,
   onClearCompleted,
 }: Props) => {
+  const filterAnchors: FilterLink[] = [
+    { status: FilterStatus.All, href: '#/', 'data-cy': 'FilterLinkAll' },
+    {
+      status: FilterStatus.Active,
+      href: '#/active',
+      'data-cy': 'FilterLinkActive',
+    },
+    {
+      status: FilterStatus.Completed,
+      href: '#/completed',
+      'data-cy': 'FilterLinkCompleted',
+    },
+  ];
+
   return (
     <footer className="todoapp__footer" data-cy="Footer">
       <span className="todo-count" data-cy="TodosCounter">
@@ -23,37 +43,19 @@ const TodoFooter = ({
       </span>
 
       <nav className="filter" data-cy="Filter">
-        {/*TODO: refactor this to use enum and map iteration */}
-        <a
-          href="#/"
-          className={cn('filter__link', {
-            selected: filterStatus === FilterStatus.All,
-          })}
-          data-cy="FilterLinkAll"
-          onClick={() => onFilterChange(FilterStatus.All)}
-        >
-          All
-        </a>
-        <a
-          href="#/active"
-          className={cn('filter__link', {
-            selected: filterStatus === FilterStatus.Active,
-          })}
-          data-cy="FilterLinkActive"
-          onClick={() => onFilterChange(FilterStatus.Active)}
-        >
-          Active
-        </a>
-        <a
-          href="#/completed"
-          className={cn('filter__link', {
-            selected: filterStatus === FilterStatus.Completed,
-          })}
-          data-cy="FilterLinkCompleted"
-          onClick={() => onFilterChange(FilterStatus.Completed)}
-        >
-          Completed
-        </a>
+        {filterAnchors.map(filter => (
+          <a
+            key={filter.status}
+            href={filter.href}
+            data-cy={filter['data-cy']}
+            className={cn('filter__link', {
+              selected: filterStatus === filter.status,
+            })}
+            onClick={() => onFilterChange(filter.status)}
+          >
+            {FilterStatus[filter.status]}
+          </a>
+        ))}
       </nav>
 
       <button

@@ -27,13 +27,14 @@ const TodoItem = ({
 
     const normalizeTitle = titleInput.trim();
 
+    setTitleInput(normalizeTitle);
+
     if (normalizeTitle === title) {
       setHasEditMode(false);
 
       return;
     }
 
-    setTitleInput(normalizeTitle);
     onTodoUpdate?.({ ...todo, title: normalizeTitle })
       .then(() => {
         setHasEditMode(false);
