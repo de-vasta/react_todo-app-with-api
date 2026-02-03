@@ -23,9 +23,9 @@ import { getVisibleTodos } from './helpers/todoHelpers';
 import { CSSTransition } from 'react-transition-group';
 import ErrorNotify from './components/ErrorNotify/ErrorNotify';
 
-export const App: React.FC = () => {
-  const transitionTimeout = 300;
+const TRANSITION_TIMEOUT = 300;
 
+export const App: React.FC = () => {
   const [todos, setTodos] = useState<Todo[]>([]);
   const [tempTodo, setTempTodo] = useState<Todo | null>(null);
 
@@ -50,6 +50,10 @@ export const App: React.FC = () => {
 
   useEffect(() => {
     createFocusRef.current?.focus();
+
+    return () => {
+      clearTimeout(errorMsgTimeOutId.current);
+    };
   }, []);
 
   useEffect(() => {
@@ -206,7 +210,7 @@ export const App: React.FC = () => {
           handleTodoUpdate={handleTodoUpdate}
           handleTodoRemove={handleTodoDelete}
           processingTodoIds={processingTodoIds}
-          transitionTimeout={transitionTimeout}
+          transitionTimeout={TRANSITION_TIMEOUT}
         />
 
         {tempTodo && (
